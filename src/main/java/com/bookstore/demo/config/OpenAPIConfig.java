@@ -14,7 +14,7 @@ public class OpenAPIConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info(new Info().title("Bookstore API")
+                .info(new Info().title("Bookstore API - User Service")
                         .version("1.0")
                         .description("API for managing bookstore operations")
                         .contact(new Contact().name("Aydin").email("contact@bookstore.com"))
