@@ -1,0 +1,1 @@
+docker build -t shopping-cart-service:latest .
