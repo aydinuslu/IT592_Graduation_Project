@@ -37,8 +37,9 @@ public class UserService {
         user.setPassword(userDetails.getPassword());
         user.setEmail(userDetails.getEmail());
         user.setRole(userDetails.getRole());
-        kafkaProducer.sendMessage("User updated: " + user.getUsername());
-        return userRepository.save(user);
+        User updatedUser = userRepository.save(user);
+        kafkaProducer.sendMessage("User updated: " + updatedUser.getUsername());
+        return updatedUser;
     }
 
     public void deleteUser(Long id) {
