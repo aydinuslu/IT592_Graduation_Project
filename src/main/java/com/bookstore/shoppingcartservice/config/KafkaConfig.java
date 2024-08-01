@@ -9,14 +9,6 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaConfig {
 
     @Bean
-    public NewTopic bookTopic() {
-        return TopicBuilder.name("book-topic")
-                .partitions(1)
-                .replicas(1)
-                .build();
-    }
-
-    @Bean
     public NewTopic cartTopic() {
         return TopicBuilder.name("cart-topic")
                 .partitions(1)

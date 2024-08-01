@@ -28,4 +28,10 @@ public class CartController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    // removeItemFromCart
+    @DeleteMapping("/{userId}/remove/{bookId}")
+    public void removeItemFromCart(@PathVariable Long userId, @PathVariable Long bookId) {
+        cartService.removeItemFromCart(userId, bookId);
+    }
 }
