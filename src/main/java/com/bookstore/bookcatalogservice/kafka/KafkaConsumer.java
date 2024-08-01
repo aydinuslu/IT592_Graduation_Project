@@ -11,4 +11,3 @@ public class KafkaConsumer {
         System.out.println("Consumed message: " + message);
     }
 }
-
