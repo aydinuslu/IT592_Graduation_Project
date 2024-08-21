@@ -18,12 +18,12 @@ const routes = [
   { path: '/books', component: BookCatalog },
   { path: '/books/edit/:id', name: 'BookDetail', component: BookDetail },
   { path: '/cart', component: ShoppingCart },
-  { path: '/checkout', component: Checkout, meta: { requiresAuth: true, roles: ['Customer'] }},
+  { path: '/checkout', component: Checkout, meta: { requiresAuth: true, roles: ['User'] }},
   { path: '/login', component: Login },
   { path: '/register', component: Register },
-  { path: '/add-book', component: AddBook, meta: { requiresAuth: true, roles: ['Admin'] }},
-  { path: '/edit-book/:id', component: EditBook, meta: { requiresAuth: true, roles: ['Admin'] }},
-  { path: '/orders', component: Order, meta: { requiresAuth: true, roles: ['Customer'] }},
+  { path: '/add-book', component: AddBook, meta: { requiresAuth: true, roles: ['Administrator'] }},
+  { path: '/edit-book/:id', component: EditBook, meta: { requiresAuth: true, roles: ['Administrator'] }},
+  { path: '/orders', component: Order, meta: { requiresAuth: true, roles: ['User'] }},
   { path: '/user', component: User, meta: { requiresAuth: true }},
 ];
 
@@ -35,18 +35,27 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
   const token = authStore.token;
-  const user = token ? decodeJwt(token) : null;
+
+  let user = null;
+  try {
+    user = token ? decodeJwt(token) : null;
+    console.log("Decoded User Token:", user);
+  } catch (error) {
+    authStore.logout();
+    return next({ path: '/login' });
+  }
 
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!user) {
-      next({ path: '/login' });
+      return next({ path: '/login' });
     } else if (to.matched.some(record => record.meta.roles && !record.meta.roles.includes(user.role))) {
-      next({ path: '/' });
+      console.log("User does not have the required role:", user.role);
+      return next({ path: '/' });
     } else {
-      next();
+      return next();
     }
   } else {
-    next();
+    return next();
   }
 });
 

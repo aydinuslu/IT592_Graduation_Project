@@ -33,12 +33,9 @@
           >
             Login
           </button>
-          <a
-            class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
-            href="#"
-          >
-            Forgot Password?
-          </a>
+          <div class="mt-4 text-center">
+        <router-link to="/register" class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">Not a user yet? Create a profile</router-link>
+      </div>
         </div>
         <div v-if="loginError" class="mt-4 text-red-500">
           {{ loginError }}

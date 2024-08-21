@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1 class="text-center text-3xl font-bold my-8">Book Catalog</h1>
-    <div class="container mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <div v-if="books.length > 0" class="container mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       <div v-for="book in books" :key="book.id" class="bg-white shadow-lg rounded-lg overflow-hidden">
         <img :src="book.coverImage || 'https://picsum.photos/350/300?image=1073'" alt="Book Cover" class="w-full h-48 object-cover">
         <div class="p-4">
@@ -15,33 +15,53 @@
         </div>
       </div>
     </div>
+    <div v-else>
+      <p class="text-center">No books available.</p>
+    </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted } from 'vue';
-import { useBookStore } from '@/stores/bookStore';
-import { useCartStore } from '@/stores/cartStore';
+import { useAuthStore } from '@/stores/authStore';
+import { useShoppingCartStore } from '@/stores/shoppingCartStore';
+import { useRouter } from 'vue-router';
 
-export default {
-  setup() {
-    const bookStore = useBookStore();
-    const cartStore = useCartStore();
-    const books = ref([]);
+const books = ref([]);
+const shoppingCartStore = useShoppingCartStore();
+const authStore = useAuthStore();
+const router = useRouter();
 
-    onMounted(async () => {
-      await bookStore.fetchBooks();
-      books.value = bookStore.books;
-    });
+const API_URL = import.meta.env.VITE_BOOK_CATALOG_SERVICE_API;
 
-    const addToCart = (book) => {
-      cartStore.addItemToCart(book);
-    };
+async function fetchBooks() {
+  try {
+    const response = await fetch(`${API_URL}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch books');
+    }
+    const data = await response.json();
+    books.value = data;
+  } catch (error) {
+    console.error('Error fetching books:', error);
+  }
+}
 
-    return {
-      books,
-      addToCart,
-    };
-  },
-};
+onMounted(fetchBooks);
+
+async function addToCart(book) {
+  if (authStore.user) {
+    try {
+      const userId = localStorage.getItem('userId');
+      if (userId) {
+        await shoppingCartStore.addItemToCart(userId, book);
+        console.log("Item added to remote cart");
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
+  } else {
+    router.push('/login');
+  }
+}
 </script>

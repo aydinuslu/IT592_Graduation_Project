@@ -45,12 +45,9 @@
           >
             Register
           </button>
-          <a
-            class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
-            href="#"
-          >
-            Already have an account? Login
-          </a>
+          <div class="mt-4 text-center">
+        <router-link to="/login" class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">Already have an account? Login</router-link>
+      </div>
         </div>
         <div v-if="registrationError" class="mt-4 text-red-500">
           {{ registrationError }}

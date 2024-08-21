@@ -16,15 +16,18 @@
 
 <script>
 import { useBookStore } from '@/stores/bookStore';
-import { useCartStore } from '@/stores/cartStore';
+import { useShoppingCartStore } from '@/stores/shoppingCartStore';
+import { useAuthStore } from '@/stores/authStore';
 import { onMounted, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 export default {
   setup() {
     const bookStore = useBookStore();
-    const cartStore = useCartStore();
+    const shoppingCartStore = useShoppingCartStore();
+    const authStore = useAuthStore();
     const route = useRoute();
+    const router = useRouter();
 
     const book = computed(() => bookStore.book);
 
@@ -33,7 +36,11 @@ export default {
     });
 
     const addToCart = (book) => {
-      cartStore.addItemToCart(book);
+      if (!authStore.user) {
+        router.push('/login');  // Redirect to login if user is not authenticated
+      } else {
+        shoppingCartStore.addItemToCart(authStore.user.id, book);
+      }
     };
 
     return {
