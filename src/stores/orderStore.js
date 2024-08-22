@@ -34,10 +34,10 @@ export const useOrderStore = defineStore('order', {
     async createOrder(orderData) {
       const authStore = useAuthStore();
       const userId = authStore.user?.id || localStorage.getItem('userId');
-      
+    
       if (!userId) {
         console.error('User ID not found, unable to create order.');
-        return;
+        return null;
       }
     
       try {
@@ -48,17 +48,14 @@ export const useOrderStore = defineStore('order', {
           },
           body: JSON.stringify(orderData),
         });
-    
         if (!response.ok) throw new Error('Failed to create order');
         
-        this.currentOrder = await response.json();
-    
-        // Clear the cart after successful order placement
-        const shoppingCartStore = useShoppingCartStore(); // Correctly import and use the shopping cart store
-        await shoppingCartStore.clearCart(); // Ensure this is awaited in case it's an async action
-    
+        const order = await response.json();
+        this.currentOrder = order; // Store it in the state if needed
+        return order; // Return the order object
       } catch (error) {
         console.error('Error creating order:', error);
+        return null;
       }
     },
 

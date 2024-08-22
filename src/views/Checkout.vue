@@ -35,10 +35,12 @@ import { computed } from 'vue';
 import { useShoppingCartStore } from '@/stores/shoppingCartStore';
 import { useOrderStore } from '@/stores/orderStore';
 import { useAuthStore } from '@/stores/authStore';
+import { useRouter } from 'vue-router';
 
 const shoppingCartStore = useShoppingCartStore();
 const orderStore = useOrderStore();
 const authStore = useAuthStore();
+const router = useRouter();
 
 const cartItems = computed(() => shoppingCartStore.cart.items);
 
@@ -66,11 +68,27 @@ async function submitOrder() {
     console.log('Submitting order for user ID:', userId);
     console.log('Order Data:', orderData);
 
-    await orderStore.createOrder(orderData);
+    const order = await orderStore.createOrder(orderData);
 
-    console.log('Order successfully placed');
+    console.log('Order successfully placed with Order ID:', order.id);
+
+    // Clear the shopping cart after successful order submission
+    shoppingCartStore.clearCart();
+
+    // Navigate to Payment route with correct params
+    if (order && order.id && totalPrice.value > 0) {
+      router.push({
+        name: 'Payment',
+        params: {
+          orderId: order.id,
+          amount: totalPrice.value.toFixed(2)
+        }
+      });
+    } else {
+      throw new Error('Invalid order data');
+    }
   } catch (error) {
-    console.error('Error placing order:', error);
+    console.error('Error placing order:', error.message);
   }
 }
 </script>

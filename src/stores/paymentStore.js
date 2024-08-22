@@ -9,6 +9,8 @@ export const usePaymentStore = defineStore('payment', {
   }),
   actions: {
     async processPayment(orderId, amount) {
+      this.error = null; // Reset any previous errors
+
       try {
         const response = await fetch(`${API_URL}/process?orderId=${orderId}&amount=${amount}`, {
           method: 'POST',
@@ -22,10 +24,19 @@ export const usePaymentStore = defineStore('payment', {
         }
 
         const data = await response.json();
-        this.paymentStatus = data;
+        
+        // Generate a status message based on the response
+        if (data && data.status === 'FAILED') {
+          this.paymentStatus = `Payment failed for Order ID: ${orderId}. Please try again.`;
+        } else {
+          this.paymentStatus = `Payment successful! Payment ID: ${data.id}, Amount: $${data.amount}`;
+        }
+
         this.error = null;
+
       } catch (error) {
-        this.error = error.message;
+        this.paymentStatus = null;
+        this.error = `Error processing payment: ${error.message}`;
       }
     },
   },

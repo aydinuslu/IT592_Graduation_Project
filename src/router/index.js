@@ -4,6 +4,7 @@ import BookCatalog from '@/views/BookCatalog.vue';
 import BookDetail from '@/views/BookDetail.vue';
 import ShoppingCart from '@/views/ShoppingCart.vue';
 import Checkout from '@/views/Checkout.vue';
+import Payment from '@/views/Payment.vue'; // Import the Payment view
 import Login from '@/components/Login.vue';
 import Register from '@/components/Register.vue';
 import AddBook from '@/components/AddBook.vue';
@@ -19,6 +20,7 @@ const routes = [
   { path: '/books/edit/:id', name: 'BookDetail', component: BookDetail },
   { path: '/cart', component: ShoppingCart },
   { path: '/checkout', component: Checkout, meta: { requiresAuth: true, roles: ['User'] }},
+  { path: '/payment/:orderId/:amount', name: 'Payment', component: Payment, meta: { requiresAuth: true, roles: ['User'] }}, // Add the Payment route
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: '/add-book', component: AddBook, meta: { requiresAuth: true, roles: ['Administrator'] }},
