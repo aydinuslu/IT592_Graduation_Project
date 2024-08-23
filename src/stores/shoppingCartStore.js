@@ -143,39 +143,39 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
     async clearCart() {
       const authStore = useAuthStore();
       const userId = authStore.user?.id || localStorage.getItem('userId');
-
+    
       if (!userId) {
         console.error('User ID not found, unable to clear cart.');
         return;
       }
-
+    
       try {
         console.log(`Attempting to clear cart for userId: ${userId}`);
-
+    
         const response = await fetch(`http://localhost:8083/api/cart/${userId}/clear`, {
           method: 'DELETE',
           headers: {
             'Accept': 'application/json',
           },
         });
-
+    
         if (!response.ok) {
           console.error('Failed to clear cart:', response.statusText);
           throw new Error('Failed to clear cart');
         }
-
+    
         // Clear the cart items in the state
         this.cart.items = [];
-
+    
         // Ensure reactivity
         this.cart = { ...this.cart };
         this.error = null;
-
+    
         console.log('Cart successfully cleared');
       } catch (error) {
         this.error = error.message;
         console.error("Clear Cart Error:", error.message);
       }
-    }    
+    }        
   },
 });

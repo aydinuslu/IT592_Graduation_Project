@@ -165,7 +165,7 @@ const updateQuantity = async (bookId, quantity) => {
 };
 
 const removeFromCart = async (bookId) => {
-  const userId = authStore.user.id;
+  const userId = authStore.user?.id || localStorage.getItem('userId');
   if (userId) {
     await shoppingCartStore.removeItemFromCart(userId, bookId);
   }

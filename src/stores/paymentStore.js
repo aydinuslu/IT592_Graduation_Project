@@ -10,6 +10,7 @@ export const usePaymentStore = defineStore('payment', {
   actions: {
     async processPayment(orderId, amount) {
       this.error = null; // Reset any previous errors
+      console.log(`Processing payment for orderId: ${orderId}, amount: ${amount}`);
 
       try {
         const response = await fetch(`${API_URL}/process?orderId=${orderId}&amount=${amount}`, {
@@ -24,12 +25,15 @@ export const usePaymentStore = defineStore('payment', {
         }
 
         const data = await response.json();
-        
-        // Generate a status message based on the response
+        console.log(`Payment response:`, data);
+
         if (data && data.status === 'FAILED') {
           this.paymentStatus = `Payment failed for Order ID: ${orderId}. Please try again.`;
+          const errorMessage = data.message || 'Unknown error occurred'; // Fallback message
+          console.error(`Payment failed: ${errorMessage}`);
         } else {
           this.paymentStatus = `Payment successful! Payment ID: ${data.id}, Amount: $${data.amount}`;
+          console.log(`Payment successful: Payment ID: ${data.id}, Amount: $${data.amount}`);
         }
 
         this.error = null;
@@ -37,6 +41,7 @@ export const usePaymentStore = defineStore('payment', {
       } catch (error) {
         this.paymentStatus = null;
         this.error = `Error processing payment: ${error.message}`;
+        console.error(`Error during payment processing: ${error.message}`);
       }
     },
   },

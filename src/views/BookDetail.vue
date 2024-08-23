@@ -30,6 +30,7 @@ export default {
     const router = useRouter();
 
     const book = computed(() => bookStore.book);
+    const userId = authStore.user?.id || localStorage.getItem('userId');
 
     onMounted(async () => {
       await bookStore.fetchBook(route.params.id);
@@ -39,7 +40,7 @@ export default {
       if (!authStore.user) {
         router.push('/login');  // Redirect to login if user is not authenticated
       } else {
-        shoppingCartStore.addItemToCart(authStore.user.id, book);
+        shoppingCartStore.addItemToCart(userId, book);
       }
     };
 
