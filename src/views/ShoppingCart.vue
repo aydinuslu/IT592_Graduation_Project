@@ -92,10 +92,14 @@ onMounted(async () => {
 const cartItems = computed(() => shoppingCartStore.cart.items);
 const totalPrice = computed(() =>
   cartItems.value.reduce((total, item) => {
-    const price = item.book?.price || 0;
-    return total + price * item.quantity;
+    // Ensure the book object and its price are fully available
+    if (item.book && item.book.price !== undefined) {
+      return total + item.book.price * item.quantity;
+    }
+    return total; // If book data is incomplete, skip adding to the total
   }, 0)
 );
+
 
 // Function to fetch book details for each item in the cart
 async function fetchBookDetails(cartItems) {
@@ -136,15 +140,25 @@ async function fetchBookDetails(cartItems) {
 
 
 const updateQuantity = async (bookId, quantity) => {
-  let userId = authStore.user?.id || localStorage.getItem('userId');
+  const userId = authStore.user?.id || localStorage.getItem('userId');
+  
   if (userId && quantity > 0) {
     try {
+      // Optimistically update the quantity in the local state
       const item = cartItems.value.find(item => item.book?.id === bookId);
       if (item) {
         item.quantity = quantity;
+
+        // Immediately calculate the new total price (if computed locally)
+        // shoppingCartStore.totalPrice.value; // Uncomment if needed
+
+        // Force reactivity update
+        cartItems.value = [...cartItems.value];
+
         console.log(`Optimistically updated quantity for bookId ${bookId} to ${quantity}`);
       }
 
+      // Make the API call to update the quantity on the server
       const response = await fetch(`http://localhost:8083/api/cart/${userId}/update/${bookId}`, {
         method: 'PUT',
         headers: {
@@ -154,6 +168,7 @@ const updateQuantity = async (bookId, quantity) => {
       });
 
       if (response.ok) {
+        // Re-fetch the cart data to ensure everything is in sync
         await shoppingCartStore.fetchCart(userId);
       } else {
         console.error(`Failed to update quantity for bookId ${bookId}`);
@@ -163,6 +178,7 @@ const updateQuantity = async (bookId, quantity) => {
     }
   }
 };
+
 
 const removeFromCart = async (bookId) => {
   const userId = authStore.user?.id || localStorage.getItem('userId');

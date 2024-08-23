@@ -11,6 +11,26 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
     error: null,
   }),
   actions: {
+    async fetchBookDetails(bookId) {
+      try {        
+        const response = await fetch(`http://localhost:8082/api/books/edit/${bookId}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch book details');
+        }
+
+        const bookData = await response.json();
+        return bookData;
+      } catch (error) {
+        console.error(`Error fetching details for bookId ${bookId}:`, error);
+        return null; // Handle gracefully if the book details cannot be fetched
+      }
+    },
     async fetchCart(userId) {
       console.log("Fetching cart for user:", userId); // Log the userId
     
@@ -31,7 +51,17 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
         const data = await response.json();
         console.log("Fetched Cart Data:", data); // Log the parsed data
     
+        // Ensure each item has complete book data
+        for (let item of data.items) {
+          if (!item.book) {
+            const bookDetails = await this.fetchBookDetails(item.bookId);
+            item.book = bookDetails;
+          }
+        }
+    
+        // Update the cart state and ensure reactivity
         this.cart.items = data.items || [];
+        this.cart = { ...this.cart };  // Force reactivity
         this.error = null;
       } catch (error) {
         this.error = error.message;
@@ -45,32 +75,38 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
           throw new Error('User ID not found. User might not be logged in.');
         }
     
-        // Create the item object with both bookId and quantity
-        const item = {
-          bookId: book.id,  // Ensure book.id is correct and available
-          quantity: 1       // Set quantity to 1 for adding to cart
-        };
+        // Find if the book is already in the cart
+        const existingItem = this.cart.items.find(item => item.bookId === book.id);
     
-        console.log("Item to add:", item); // Debugging log
+        if (existingItem) {
+          // If the book is already in the cart, increase the quantity
+          await this.updateItemQuantity(userId, book.id, existingItem.quantity + 1);
+        } else {
+          // If the book is not in the cart, add it with quantity 1
+          const item = {
+            bookId: book.id,
+            quantity: 1,
+          };
     
-        const requestBody = JSON.stringify(item);
+          const requestBody = JSON.stringify(item);
     
-        const response = await fetch(`${API_URL}/${userId}/add`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: requestBody,
-        });
+          const response = await fetch(`${API_URL}/${userId}/add`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: requestBody,
+          });
     
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error('Response Error Data:', errorData);
-          throw new Error('Failed to add item to cart');
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Response Error Data:', errorData);
+            throw new Error('Failed to add item to cart');
+          }
+    
+          console.log("Item added to remote cart:", item);
         }
-    
-        console.log("Item added to remote cart:", item); // Debugging log
     
         // Optional: Refetch the cart to update the UI
         await this.fetchCart(userId);
@@ -106,28 +142,28 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
 
     async updateItemQuantity(userId, bookId, quantity) {
       try {
-        const payload = { bookId, quantity };
-        const response = await fetch(`${API_URL}/${userId}/update-quantity`, {
-          method: 'PATCH',
+        // Construct the correct API endpoint for updating cart item quantity
+        const response = await fetch(`${API_URL}/${userId}/update/${bookId}`, {
+          method: 'PUT', // Change to PUT to match the API requirement
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({ quantity }), // Send the quantity in the request body
         });
-
+    
         if (!response.ok) {
           throw new Error('Failed to update item quantity');
         }
-
+    
         const data = await response.json();
-
+    
         // Update the cart with the new quantity
         const itemIndex = this.cart.items.findIndex(item => item.bookId === bookId);
         if (itemIndex !== -1) {
           this.cart.items[itemIndex].quantity = data.quantity;
         }
-
+    
         // Force reactivity
         this.cart = { ...this.cart };
         this.error = null;
