@@ -44,6 +44,9 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/users/login").permitAll();
                     auth.requestMatchers("/api/users").permitAll();
                     auth.requestMatchers("/api/users/me").authenticated();
+                    auth.requestMatchers("/v3/api-docs").permitAll();
+                    auth.requestMatchers("/swagger-ui/**").permitAll();
+                    auth.requestMatchers("/swagger-ui.html").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -54,7 +57,6 @@ public class SecurityConfig {
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
         logger.debug("Security filter chain setup complete");
-
         return http.build();
     }
 

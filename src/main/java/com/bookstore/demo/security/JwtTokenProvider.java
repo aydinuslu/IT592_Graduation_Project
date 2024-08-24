@@ -6,12 +6,16 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.crypto.SecretKey;
+import java.util.Collection;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
@@ -29,6 +33,11 @@ public class JwtTokenProvider {
 
     public String generateToken(Authentication authentication) {
         String username = authentication.getName();
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        String roles = authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
@@ -36,6 +45,7 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .setSubject(username)
+                .claim("role", roles)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(jwtSecretKey)
@@ -53,6 +63,19 @@ public class JwtTokenProvider {
         logger.debug("Extracted username from JWT token: {}", username);
 
         return username;
+    }
+
+    public String getRoleFromJWT(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(jwtSecretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        String role = claims.get("role", String.class);
+        logger.debug("Extracted role from JWT token: {}", role);
+
+        return role;
     }
 
     public boolean validateToken(String authToken) {
