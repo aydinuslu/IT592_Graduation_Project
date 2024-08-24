@@ -10,9 +10,4 @@ public class KafkaConsumer {
     public void consumeOrderTopic(String message) {
         System.out.println("Consumed message from order-topic: " + message);
     }
-
-    @KafkaListener(topics = "cart-topic", groupId = "shopping-cart-service-group")
-    public void consumeCartTopic(String message) {
-        System.out.println("Consumed message from cart-topic: " + message);
-    }
 }
