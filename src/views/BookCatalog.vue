@@ -1,6 +1,10 @@
 <template>
   <div>
     <h1 class="text-center text-3xl font-bold my-8">Book Catalog</h1>
+
+    <!-- Toast Notification -->
+    <Toast v-if="toastMessage" :message="toastMessage"/>
+
     <div v-if="books.length > 0" class="container mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       <div v-for="book in books" :key="book.id" class="bg-white shadow-lg rounded-lg overflow-hidden">
         <img :src="book.coverImage || 'https://picsum.photos/350/300?image=1073'" alt="Book Cover" class="w-full h-48 object-cover">
@@ -9,7 +13,7 @@
           <p class="text-gray-600">{{ book.author }}</p>
           <p class="text-gray-800 font-bold">${{ book.price }}</p>
           <div class="flex justify-between mt-4">
-            <router-link :to="`/books/edit/${book.id}`" class="text-blue-500 hover:underline">View Details</router-link>
+            <router-link :to="`/books/${book.id}`" class="text-blue-500 hover:underline">View Details</router-link>
             <button @click="addToCart(book)" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add to Cart</button>
           </div>
         </div>
@@ -26,8 +30,10 @@ import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/authStore';
 import { useShoppingCartStore } from '@/stores/shoppingCartStore';
 import { useRouter } from 'vue-router';
+import Toast from '@/components/Toast.vue';  // Import the Toast component
 
 const books = ref([]);
+const toastMessage = ref('');  // State to hold the toast message
 const shoppingCartStore = useShoppingCartStore();
 const authStore = useAuthStore();
 const router = useRouter();
@@ -54,8 +60,26 @@ async function addToCart(book) {
     try {
       const userId = localStorage.getItem('userId');
       if (userId) {
-        await shoppingCartStore.addItemToCart(userId, book);
-        console.log("Item added to remote cart");
+        // Check if book is in the cart
+        const cartItem = shoppingCartStore.cart.items.find(item => item.bookId === book.id);
+        if (cartItem) {
+          // Update quantity if already in cart
+          const newQuantity = cartItem.quantity + 1;
+          if (newQuantity <= book.stock) {
+            await shoppingCartStore.updateItemQuantity(book.id, newQuantity);
+            toastMessage.value = `${book.title} quantity updated in cart!`;  // Set toast message
+          } else {
+            alert("Not enough stock available. Only items in stock can be added to cart.");
+          }
+        } else {
+          // Add new item to cart if not in cart
+          if (book.stock > 0) {
+            await shoppingCartStore.addItemToCart(userId, book);
+            toastMessage.value = `${book.title} added to cart!`;  // Set toast message
+          } else {
+            alert("This book is out of stock.");
+          }
+        }
       }
     } catch (error) {
       console.error("Error adding to cart:", error);

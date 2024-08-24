@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { useAuthStore } from '@/stores/authStore'; // Add this import
+import { useAuthStore } from '@/stores/authStore';
 
 const API_URL = import.meta.env.VITE_SHOPPING_CART_SERVICE_API;
 
@@ -31,6 +31,7 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
         return null; // Handle gracefully if the book details cannot be fetched
       }
     },
+
     async fetchCart(userId) {
       console.log("Fetching cart for user:", userId); // Log the userId
     
@@ -100,9 +101,11 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
           });
     
           if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Response Error Data:', errorData);
-            throw new Error('Failed to add item to cart');
+            const errorText = await response.text(); // Capture the plain text error message
+            console.error('Failed to add item to cart:', errorText);
+            this.error = errorText; // Store the error message in the state
+            this.clearError(); // Clear the error after a timeout
+            return;
           }
     
           console.log("Item added to remote cart:", item);
@@ -111,7 +114,9 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
         // Optional: Refetch the cart to update the UI
         await this.fetchCart(userId);
       } catch (error) {
+        this.error = error.message;
         console.error("Add Item Error:", error.message);
+        this.clearError(); // Clear the error after a timeout
       }
     },
 
@@ -137,14 +142,14 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
       } catch (error) {
         this.error = error.message;
         console.error("Remove Item Error:", error.message);
+        this.clearError(); // Clear the error after a timeout
       }
     },
 
     async updateItemQuantity(userId, bookId, quantity) {
       try {
-        // Construct the correct API endpoint for updating cart item quantity
         const response = await fetch(`${API_URL}/${userId}/update/${bookId}`, {
-          method: 'PUT', // Change to PUT to match the API requirement
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
@@ -153,7 +158,11 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
         });
     
         if (!response.ok) {
-          throw new Error('Failed to update item quantity');
+          const errorText = await response.text(); // Capture the plain text error message
+          console.error('Failed to update item quantity:', errorText);
+          this.error = errorText; // Store the error message in the state
+          this.clearError(); // Clear the error after a timeout
+          return;
         }
     
         const data = await response.json();
@@ -170,11 +179,16 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
       } catch (error) {
         this.error = error.message;
         console.error("Update Item Quantity Error:", error.message);
+        this.clearError(); // Clear the error after a timeout
       }
     },
 
-    // New Method: Clear the cart after order placement
-    // Updated clearCart method within shoppingCartStore.js
+    clearError() {
+      // Clear the error after a short delay
+      setTimeout(() => {
+        this.error = null;
+      }, 5000); // Clear error after 5 seconds
+    },
 
     async clearCart() {
       const authStore = useAuthStore();
@@ -211,6 +225,7 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
       } catch (error) {
         this.error = error.message;
         console.error("Clear Cart Error:", error.message);
+        this.clearError(); // Clear the error after a timeout
       }
     }        
   },

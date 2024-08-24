@@ -4,7 +4,7 @@ import BookCatalog from '@/views/BookCatalog.vue';
 import BookDetail from '@/views/BookDetail.vue';
 import ShoppingCart from '@/views/ShoppingCart.vue';
 import Checkout from '@/views/Checkout.vue';
-import Payment from '@/views/Payment.vue'; // Import the Payment view
+import Payment from '@/views/Payment.vue';
 import Login from '@/components/Login.vue';
 import Register from '@/components/Register.vue';
 import AddBook from '@/components/AddBook.vue';
@@ -17,14 +17,14 @@ import { decodeJwt } from "jose";
 const routes = [
   { path: '/', component: Home },
   { path: '/books', component: BookCatalog },
-  { path: '/books/edit/:id', name: 'BookDetail', component: BookDetail },
+  { path: '/books/:id', name: 'BookDetail', component: BookDetail }, // Updated route for book details
   { path: '/cart', component: ShoppingCart },
   { path: '/checkout', component: Checkout, meta: { requiresAuth: true, roles: ['User'] }},
-  { path: '/payment/:orderId/:amount', name: 'Payment', component: Payment, meta: { requiresAuth: true, roles: ['User'] }}, // Add the Payment route
+  { path: '/payment/:orderId/:amount', name: 'Payment', component: Payment, meta: { requiresAuth: true, roles: ['User'] }},
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: '/add-book', component: AddBook, meta: { requiresAuth: true, roles: ['Administrator'] }},
-  { path: '/edit-book/:id', component: EditBook, meta: { requiresAuth: true, roles: ['Administrator'] }},
+  { path: '/edit-book/:id', component: EditBook, meta: { requiresAuth: true, roles: ['Administrator'] }}, // Separate edit route
   { path: '/orders', component: Order, meta: { requiresAuth: true, roles: ['User'] }},
   { path: '/user', component: User, meta: { requiresAuth: true }},
 ];

@@ -15,8 +15,8 @@ export const usePaymentStore = defineStore('payment', {
       try {
         const response = await fetch(`${API_URL}/process?orderId=${orderId}&amount=${amount}`, {
           method: 'POST',
-          headers: {
-            'Accept': 'application/json',
+          headers: {              
+              'Accept': '*/*'
           },
         });
 

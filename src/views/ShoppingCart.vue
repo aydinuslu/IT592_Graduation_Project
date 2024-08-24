@@ -2,9 +2,14 @@
   <div class="container mx-auto px-4">
     <h1 class="text-center text-3xl font-bold my-8">Shopping Cart</h1>
 
+    <!-- Error Message -->
+    <div v-if="shoppingCartStore.error" class="bg-red-100 text-red-700 p-4 mb-4 rounded">
+      {{ shoppingCartStore.error }}
+    </div>
+
     <!-- Loading Spinner -->
     <div v-if="isLoading" class="flex justify-center items-center">
-      <div class="loader">Loading your cart...</div>
+      <div class="text-xl text-gray-600">Loading your cart...</div>
     </div>
 
     <!-- Cart Items -->
@@ -100,7 +105,6 @@ const totalPrice = computed(() =>
   }, 0)
 );
 
-
 // Function to fetch book details for each item in the cart
 async function fetchBookDetails(cartItems) {
   console.log("Starting to fetch book details...");
@@ -138,46 +142,61 @@ async function fetchBookDetails(cartItems) {
 };
 
 
-
-const updateQuantity = async (bookId, quantity) => {
+const updateQuantity = async (bookId, newQuantity) => {
   const userId = authStore.user?.id || localStorage.getItem('userId');
   
-  if (userId && quantity > 0) {
-    try {
-      // Optimistically update the quantity in the local state
-      const item = cartItems.value.find(item => item.book?.id === bookId);
-      if (item) {
-        item.quantity = quantity;
+  if (userId && newQuantity > 0) {
+    const item = cartItems.value.find(item => item.book?.id === bookId);
+    const originalQuantity = item ? item.quantity : null; // Save original quantity
 
-        // Immediately calculate the new total price (if computed locally)
-        // shoppingCartStore.totalPrice.value; // Uncomment if needed
+    if (item) {
+      try {
+        // Optimistically update the quantity in the local state
+        item.quantity = newQuantity;
+        cartItems.value = [...cartItems.value]; // Force reactivity update
 
-        // Force reactivity update
-        cartItems.value = [...cartItems.value];
+        console.log(`Optimistically updated quantity for bookId ${bookId} to ${newQuantity}`);
 
-        console.log(`Optimistically updated quantity for bookId ${bookId} to ${quantity}`);
+        // Make the API call to update the quantity on the server
+        const response = await fetch(`http://localhost:8083/api/cart/${userId}/update/${bookId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ quantity: newQuantity }),
+        });
+
+        if (response.ok) {
+          // If the update is successful, no further action is needed
+          await shoppingCartStore.fetchCart(userId); // Optional: to ensure cart data is in sync
+        } else {
+          const errorText = await response.text();
+          console.error(`Failed to update quantity for bookId ${bookId}: ${errorText}`);
+          shoppingCartStore.error = errorText; // Set the error in the store
+
+          // Revert to original quantity and total price
+          revertQuantity(item, originalQuantity);
+        }
+      } catch (error) {
+        console.error(`Error updating quantity for bookId ${bookId}:`, error);
+        shoppingCartStore.error = error.message; // Set the error in the store
+
+        // Revert to original quantity and total price
+        revertQuantity(item, originalQuantity);
       }
-
-      // Make the API call to update the quantity on the server
-      const response = await fetch(`http://localhost:8083/api/cart/${userId}/update/${bookId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ quantity }),
-      });
-
-      if (response.ok) {
-        // Re-fetch the cart data to ensure everything is in sync
-        await shoppingCartStore.fetchCart(userId);
-      } else {
-        console.error(`Failed to update quantity for bookId ${bookId}`);
-      }
-    } catch (error) {
-      console.error(`Error updating quantity for bookId ${bookId}:`, error);
     }
   }
 };
+
+// Helper function to revert quantity and re-calculate the total price
+const revertQuantity = (item, originalQuantity) => {
+  if (item && originalQuantity !== null) {
+    item.quantity = originalQuantity;
+    cartItems.value = [...cartItems.value]; // Force reactivity update
+  }
+};
+
+
 
 
 const removeFromCart = async (bookId) => {
@@ -187,10 +206,3 @@ const removeFromCart = async (bookId) => {
   }
 };
 </script>
-
-<style scoped>
-.loader {
-  font-size: 1.5rem;
-  color: #4b5563;
-}
-</style>
