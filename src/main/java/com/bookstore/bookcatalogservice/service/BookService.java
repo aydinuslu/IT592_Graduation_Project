@@ -46,12 +46,43 @@ public class BookService {
             kafkaProducer.sendMessage("Updated book with id: " + updatedBook.getId());
             return updatedBook;
         } else {
-            throw new RuntimeException("Book not found");
+            return null;
         }
     }
 
     public void deleteBook(Long id) {
         bookRepository.deleteById(id);
         kafkaProducer.sendMessage("Deleted book with id: " + id);
+    }
+
+    // Get stock of a book
+    public int getStock(Long id) {
+        Optional<Book> book = bookRepository.findById(id);
+        return book.map(Book::getStock).orElse(-1);
+    }
+
+    // Update stock of a book
+    public void updateStock(Long bookId, int quantity) {
+        Optional<Book> optionalBook = bookRepository.findById(bookId);
+
+        if (optionalBook.isPresent()) {
+            Book book = optionalBook.get();
+
+            // Check if there's enough stock to fulfill the request
+            if (book.getStock() < quantity) {
+                throw new RuntimeException("Not enough stock for book ID: " + bookId);
+            }
+
+            // Decrement the stock by the given quantity
+            book.setStock(book.getStock() - quantity);
+
+            // Save the updated book to the repository
+            Book updatedBook = bookRepository.save(book);
+
+            // Log a message that the stock was updated
+            kafkaProducer.sendMessage("Updated stock for book ID: " + updatedBook.getId() + " to new stock: " + updatedBook.getStock());
+        } else {
+            throw new RuntimeException("Book not found for ID: " + bookId);
+        }
     }
 }
