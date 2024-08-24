@@ -1,7 +1,7 @@
+name: bookstore
 services:
   zookeeper:
     image: bitnami/zookeeper:latest
-    container_name: zookeeper
     ports:
       - "2181:2181"
     environment:
@@ -9,7 +9,6 @@ services:
 
   kafka:
     image: bitnami/kafka:latest
-    container_name: kafka
     ports:
       - "9092:9092"
       - "29092:29092"
@@ -25,7 +24,6 @@ services:
 
   mysql:
     image: mysql:latest
-    container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: 1q2w3e
       MYSQL_DATABASE: bookstore
@@ -81,12 +79,16 @@ services:
 
   payment-service:
     image: payment-service:latest
-    container_name: payment-service
     ports:
       - "8085:8085"
     depends_on:
       - mysql
       - kafka
+
+networks:
+  bookstore_default:
+    external:
+      name: bookstore_default
 
 volumes:
   mysql-data:

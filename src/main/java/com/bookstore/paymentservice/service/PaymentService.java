@@ -32,6 +32,7 @@ public class PaymentService {
 
         // Simulate payment processing
         boolean isSuccess = new Random().nextBoolean();
+        //boolean isSuccess = true; // or set to false to simulate failure
         return confirmPayment(payment.getId(), isSuccess);
     }
 
