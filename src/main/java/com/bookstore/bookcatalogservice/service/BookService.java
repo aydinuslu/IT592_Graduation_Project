@@ -5,12 +5,16 @@ import com.bookstore.bookcatalogservice.model.Book;
 import com.bookstore.bookcatalogservice.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class BookService {
+
+    private static final Logger logger = LoggerFactory.getLogger(BookService.class);
 
     @Autowired
     private BookRepository bookRepository;
@@ -61,28 +65,22 @@ public class BookService {
         return book.map(Book::getStock).orElse(-1);
     }
 
-    // Update stock of a book
     public void updateStock(Long bookId, int quantity) {
         Optional<Book> optionalBook = bookRepository.findById(bookId);
 
         if (optionalBook.isPresent()) {
             Book book = optionalBook.get();
 
-            // Check if there's enough stock to fulfill the request
-            if (book.getStock() < quantity) {
-                throw new RuntimeException("Not enough stock for book ID: " + bookId);
+            if (book.getStock() >= quantity) {
+                book.setStock(book.getStock() - quantity);
+                bookRepository.save(book);
+                logger.info("Stock updated for BookID={}, new stock={}", bookId, book.getStock());
+            } else {
+                logger.error("Not enough stock for book ID: {}. Available: {}, Requested: {}", bookId, book.getStock(), quantity);
+                // Optionally, you could raise an alert or flag this condition for further review.
             }
-
-            // Decrement the stock by the given quantity
-            book.setStock(book.getStock() - quantity);
-
-            // Save the updated book to the repository
-            Book updatedBook = bookRepository.save(book);
-
-            // Log a message that the stock was updated
-            kafkaProducer.sendMessage("Updated stock for book ID: " + updatedBook.getId() + " to new stock: " + updatedBook.getStock());
         } else {
-            throw new RuntimeException("Book not found for ID: " + bookId);
+            logger.error("Book ID: {} not found in the repository.", bookId);
         }
     }
 }
