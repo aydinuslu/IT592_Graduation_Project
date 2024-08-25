@@ -50,6 +50,8 @@ public class PaymentService {
     }
 
     public Payment getPaymentStatus(Long orderId) {
-        return paymentRepository.findByOrderId(orderId);
+        // Retrieve the latest payment by order ID
+        return paymentRepository.findFirstByOrderIdOrderByPaymentDateDesc(orderId)
+                .orElse(null); // Return null if no payment is found
     }
 }
