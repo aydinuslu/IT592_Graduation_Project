@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import fallbackImage from '@/assets/books.jpg';  // Import the fallback image
 
 const API_URL = import.meta.env.VITE_BOOK_CATALOG_SERVICE_API;
 
@@ -14,20 +15,25 @@ export const useBookStore = defineStore('bookStore', {
     async fetchBooks() {
       this.isLoading = true;
       this.error = null;
+      console.log('Fetching books from API:', API_URL); // Debugging line
       try {
         const response = await fetch(`${API_URL}`);
+        console.log('API response:', response); // Debugging line
         if (!response.ok) {
           throw new Error('Failed to fetch books');
         }
         const books = await response.json();
+        console.log('Books data:', books); // Debugging line
         this.books = books.map(book => ({
           ...book,
-          coverImage: book.coverImage || 'https://picsum.photos/350/300?image=1073',
+          coverImage: book.coverImage || fallbackImage,
         }));
       } catch (error) {
         this.error = error.message;
+        console.error('Error fetching books:', error); // Debugging line
       } finally {
         this.isLoading = false;
+        console.log('Books in state:', this.books); // Debugging line
       }
     },
 

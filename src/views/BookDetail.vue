@@ -4,7 +4,7 @@
     <Toast v-if="toastMessage" :message="toastMessage" @close="toastMessage = ''"/>
 
     <div v-if="book" class="book-detail p-4 mx-auto max-w-xl">
-      <img :src="book.coverImage || 'https://picsum.photos/350/300?image=1073'" alt="Book Cover" class="w-full h-64 object-cover rounded-lg">
+      <img :src="book.coverImage || fallbackImage" alt="Book Cover" class="w-full h-64 object-cover rounded-lg">
       <div class="mt-4">
         <h2 class="text-2xl font-bold">{{ book.title }}</h2>
         <p class="text-gray-600">Author: {{ book.author }}</p>
@@ -26,6 +26,7 @@ import { useBookStore } from '@/stores/bookStore';
 import { useShoppingCartStore } from '@/stores/shoppingCartStore';
 import { useAuthStore } from '@/stores/authStore';
 import Toast from '@/components/Toast.vue';  // Import the Toast component
+import fallbackImage from '@/assets/books.jpg';  // Import the fallback image
 
 const route = useRoute();
 const router = useRouter();

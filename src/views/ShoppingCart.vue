@@ -21,7 +21,7 @@
       >
         <div class="flex items-center">
           <img
-            :src="item.book?.coverImage || 'https://picsum.photos/350/300?image=1073'"
+            :src="item.book?.coverImage || fallbackImage"
             alt="Book Cover"
             class="w-20 h-24 object-cover rounded-lg mr-4"
           />
@@ -71,6 +71,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useShoppingCartStore } from '@/stores/shoppingCartStore';
 import { useAuthStore } from '@/stores/authStore';
+import fallbackImage from '@/assets/books.jpg';  // Import the fallback image
 
 const shoppingCartStore = useShoppingCartStore();
 const authStore = useAuthStore();

@@ -6,8 +6,8 @@
     <Toast v-if="toastMessage" :message="toastMessage"/>
 
     <div v-if="books.length > 0" class="container mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-      <div v-for="book in books" :key="book.id" class="bg-white shadow-lg rounded-lg overflow-hidden">
-        <img :src="book.coverImage || 'https://picsum.photos/350/300?image=1073'" alt="Book Cover" class="w-full h-48 object-cover">
+      <div v-for="book in books" :key="book.id" class="bg-white shadow-lg rounded-lg overflow-hidden">        
+        <img :src="book.coverImage || fallbackImage" alt="Book Cover" class="w-full h-48 object-cover">
         <div class="p-4">
           <h2 class="text-xl font-semibold">{{ book.title }}</h2>
           <p class="text-gray-600">{{ book.author }}</p>
@@ -31,6 +31,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useShoppingCartStore } from '@/stores/shoppingCartStore';
 import { useRouter } from 'vue-router';
 import Toast from '@/components/Toast.vue';  // Import the Toast component
+import fallbackImage from '@/assets/books.jpg';  // Import the fallback image
 
 const books = ref([]);
 const toastMessage = ref('');  // State to hold the toast message

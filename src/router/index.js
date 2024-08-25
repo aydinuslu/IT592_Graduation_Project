@@ -9,6 +9,9 @@ import Login from '@/components/Login.vue';
 import Register from '@/components/Register.vue';
 import AddBook from '@/components/AddBook.vue';
 import EditBook from '@/components/EditBook.vue';
+import ManageBooks from '@/views/ManageBooks.vue';
+import ViewPayments from '@/views/ViewPayments.vue'; // Import the correct ViewPayments component
+import OrderDetails from '@/views/OrderDetails.vue'; // Import OrderDetails component
 import Order from '@/views/Order.vue';
 import User from '@/views/User.vue';
 import { useAuthStore } from '@/stores/authStore';
@@ -17,16 +20,19 @@ import { decodeJwt } from "jose";
 const routes = [
   { path: '/', component: Home },
   { path: '/books', component: BookCatalog },
-  { path: '/books/:id', name: 'BookDetail', component: BookDetail }, // Updated route for book details
+  { path: '/books/:id', name: 'BookDetail', component: BookDetail }, // Route for book details
   { path: '/cart', component: ShoppingCart },
   { path: '/checkout', component: Checkout, meta: { requiresAuth: true, roles: ['User'] }},
   { path: '/payment/:orderId/:amount', name: 'Payment', component: Payment, meta: { requiresAuth: true, roles: ['User'] }},
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: '/add-book', component: AddBook, meta: { requiresAuth: true, roles: ['Administrator'] }},
-  { path: '/edit-book/:id', component: EditBook, meta: { requiresAuth: true, roles: ['Administrator'] }}, // Separate edit route
+  { path: '/edit-book/:id', component: EditBook, meta: { requiresAuth: true, roles: ['Administrator'] }},
   { path: '/orders', component: Order, meta: { requiresAuth: true, roles: ['User'] }},
   { path: '/user', component: User, meta: { requiresAuth: true }},
+  { path: '/view-payments', component: ViewPayments, meta: { requiresAuth: true, roles: ['Administrator'] }}, // Correct this line
+  { path: '/manage-books', component: ManageBooks, meta: { requiresAuth: true, roles: ['Administrator'] }}, // Add this line
+  { path: '/order-details/:userId/:orderId', component: OrderDetails, meta: { requiresAuth: true, roles: ['Administrator'] } },
 ];
 
 const router = createRouter({
