@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  bookstore-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"  # Map port 8080 on your host to port 8080 in the container
+    networks:
+      - bookstore_default
+
+networks:
+  bookstore_default:
+    external: true
