@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { decodeJwt } from "jose"; // Decoding JWT tokens
 import { useShoppingCartStore } from '@/stores/shoppingCartStore'; // Import shoppingCartStore
 
-const API_URL = 'http://localhost:8081/api/users';
+const API_URL = 'http://74.248.84.174/api/users';
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({

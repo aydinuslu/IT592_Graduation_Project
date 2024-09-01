@@ -75,7 +75,7 @@ export default {
 
     const addBook = async () => {
       try {
-        const response = await fetch('http://localhost:8082/api/books/add', {
+        const response = await fetch('http://74.248.84.174/api/books/add', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(book.value),

@@ -114,7 +114,7 @@ async function fetchBookDetails(cartItems) {
     try {
       console.log(`Fetching details for book ID: ${item.bookId}`);
       
-      const response = await fetch(`http://localhost:8082/api/books/edit/${item.bookId}`);
+      const response = await fetch(`http://74.248.84.174/api/books/edit/${item.bookId}`);
       
       console.log("Fetch response:", response);
 
@@ -159,7 +159,7 @@ const updateQuantity = async (bookId, newQuantity) => {
         console.log(`Optimistically updated quantity for bookId ${bookId} to ${newQuantity}`);
 
         // Make the API call to update the quantity on the server
-        const response = await fetch(`http://localhost:8083/api/cart/${userId}/update/${bookId}`, {
+        const response = await fetch(`http://74.248.84.174/api/cart/${userId}/update/${bookId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

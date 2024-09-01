@@ -46,7 +46,7 @@
       const fetchPaymentsAndUsers = async () => {
         try {
           // Fetch all users
-          const usersResponse = await fetch('http://localhost:8081/api/users');
+          const usersResponse = await fetch('http://74.248.84.174/api/users');
           if (!usersResponse.ok) throw new Error('Failed to fetch users');
           
           const users = await usersResponse.json();
@@ -54,7 +54,7 @@
   
           // Loop through each user and get their orders
           for (const user of users) {
-            const ordersResponse = await fetch(`http://localhost:8084/api/orders/${user.id}`);
+            const ordersResponse = await fetch(`http://74.248.84.174/api/orders/${user.id}`);
             if (!ordersResponse.ok) throw new Error(`Failed to fetch orders for user ID ${user.id}`);
   
             const orders = await ordersResponse.json();
@@ -62,7 +62,7 @@
   
             // For each order, fetch the payment status
             for (const order of orders) {
-              const paymentResponse = await fetch(`http://localhost:8085/api/payment/status/${order.id}`);
+              const paymentResponse = await fetch(`http://74.248.84.174/api/payment/status/${order.id}`);
   
               if (paymentResponse.status === 204) {
                 console.log(`No payment data for order ID ${order.id}. Skipping.`);

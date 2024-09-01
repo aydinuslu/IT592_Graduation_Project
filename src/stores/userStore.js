@@ -16,7 +16,7 @@ export const useUserStore = defineStore('user', {
 
         console.log("Fetching user data with token:", this.token);
 
-        const response = await fetch('http://localhost:8081/api/users/me', {
+        const response = await fetch('http://74.248.84.174/api/users/me', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${this.token}`,
@@ -49,7 +49,7 @@ export const useUserStore = defineStore('user', {
 
         console.log("Updating user data:", userData);
 
-        const response = await fetch(`http://localhost:8081/api/users/${this.userInfo.id}`, {
+        const response = await fetch(`http://74.248.84.174/api/users/${this.userInfo.id}`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${this.token}`,

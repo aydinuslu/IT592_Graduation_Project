@@ -18,7 +18,7 @@ export const useOrderStore = defineStore('order', {
       }
 
       try {
-        const response = await fetch(`http://localhost:8084/api/orders/${userId}`, {
+        const response = await fetch(`http://74.248.84.174/api/orders/${userId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -41,7 +41,7 @@ export const useOrderStore = defineStore('order', {
       }
     
       try {
-        const response = await fetch(`http://localhost:8084/api/orders/${userId}`, {
+        const response = await fetch(`http://74.248.84.174/api/orders/${userId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ export const useOrderStore = defineStore('order', {
 
     async fetchOrderById(orderId) {
       try {
-        const response = await fetch(`http://localhost:8084/api/orders/${orderId}`, {
+        const response = await fetch(`http://74.248.84.174/api/orders/${orderId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

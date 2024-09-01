@@ -54,7 +54,7 @@
   
         try {
           // Fetch the order details
-          const ordersResponse = await fetch(`http://localhost:8084/api/orders/${userId}`);
+          const ordersResponse = await fetch(`http://74.248.84.174/api/orders/${userId}`);
           if (!ordersResponse.ok) throw new Error(`Failed to fetch orders for user ID ${userId}`);
   
           const orders = await ordersResponse.json();
@@ -64,7 +64,7 @@
           if (selectedOrder) {
             // Fetch book details for each item
             for (const item of selectedOrder.items) {
-              const bookResponse = await fetch(`http://localhost:8082/api/books/edit/${item.bookId}`);
+              const bookResponse = await fetch(`http://74.248.84.174/api/books/edit/${item.bookId}`);
               if (bookResponse.ok) {
                 const bookData = await bookResponse.json();
                 item.bookTitle = bookData.title; // Add book title to the item
@@ -76,7 +76,7 @@
             order.value = selectedOrder;
   
             // Fetch the payment details
-            const paymentResponse = await fetch(`http://localhost:8085/api/payment/status/${orderId}`);
+            const paymentResponse = await fetch(`http://74.248.84.174/api/payment/status/${orderId}`);
             if (paymentResponse.ok) {
               const paymentData = await paymentResponse.json();
               payment.value = paymentData;

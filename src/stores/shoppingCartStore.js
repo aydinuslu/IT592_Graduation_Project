@@ -13,7 +13,7 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
   actions: {
     async fetchBookDetails(bookId) {
       try {        
-        const response = await fetch(`http://localhost:8082/api/books/edit/${bookId}`, {
+        const response = await fetch(`http://74.248.84.174/api/books/edit/${bookId}`, {
           method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -202,7 +202,7 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
       try {
         console.log(`Attempting to clear cart for userId: ${userId}`);
     
-        const response = await fetch(`http://localhost:8083/api/cart/${userId}/clear`, {
+        const response = await fetch(`http://74.248.84.174/api/cart/${userId}/clear`, {
           method: 'DELETE',
           headers: {
             'Accept': 'application/json',
